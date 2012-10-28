@@ -7,7 +7,7 @@ message='hey ... waiting for response....'#the message to be sent
 x=sck.socket(sck.AF_INET,sck.SOCK_DGRAM) #creating socket AF_INET family :- socket datagram
 sck.settimeout(0.1)
 time=pack('b',1) #pack 1 in the given format and control no of networks which will recieve the packet
-x.setsockopt(sck.IPPROTO_IP,sck.IP_MULTICAST_TTL,ttl)# setting up socket options..
+x.setsockopt(sck.IPPROTO_IP,sck.IP_MULTICAST_TTL,time)# setting up socket options..
 try:
 	print 'sending message  ',message
 	sent=x.sendto(message,mcast_grp) #send message to the multicast ip
