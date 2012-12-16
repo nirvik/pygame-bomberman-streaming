@@ -64,4 +64,4 @@ class multicast(sck.socket):
                                         n+=1
                                         pass
                                 else:
-        				raise c                                                                                                                            67,3-24       93%
+        				raise c  
