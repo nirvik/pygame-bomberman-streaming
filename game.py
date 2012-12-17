@@ -8,7 +8,7 @@ port=9878
 timeout=5
 buff_size=1024
 logging.root.setLevel(logging.INFO)
-
+#random
 
 class ConnectingError(Exception):
 	def __init__(self,value,mesg):
