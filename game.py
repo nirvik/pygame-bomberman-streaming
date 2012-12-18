@@ -4,7 +4,7 @@ import uuid
 from identity import *
 
 mcast_ip='224.23.23.29'
-port=9878
+port=9879
 timeout=5
 buff_size=1024
 logging.root.setLevel(logging.INFO)
@@ -39,6 +39,11 @@ class multicast(sck.socket):
         self.sendto(mesg,(mcast_ip,port))
         logging.info("BROADCASTING \n")
 
+    def add_peers(self,mesg):
+    	
+	self.players_uids.append(mesg.split()[0])
+	logging.info("{0} . successfully added to the list".format(mesg.split()[0]))
+    
     def listen(self):
     	d=ConnectingError(1,"no response")
         try:
@@ -50,17 +55,13 @@ class multicast(sck.socket):
 		raise d
                 logging.info("SOCKET TIMED OUT ! therefore no response\n")
       	
-	if data.split()[0]==self.uid and data.split()[0] in self.players_uids: #extracting the uuid from the messag
+	if data.split()[0]==self.uid or data.split()[0] in self.players_uids: #extracting the uuid from the messag
 		logging.info("SAME UUID's TRYING TO COMMUNICATE \n")
 		raise d
 		
 	else : 
-		add_peers(data) 
+		self.add_peers(data) 
     
-    def add_peers(self,mesg):
-    	
-	self.players_uids.append(msg.split()[0])
-	logging.info("{0} . successfully added to the list".format(msg.split()[0]))
 
     def discover_bcast_mesg(self):
     	a=ConnectingError(2,"exceeded no of tries")
