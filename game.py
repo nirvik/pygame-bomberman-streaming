@@ -30,7 +30,7 @@ class multicast(sck.socket):
         self.setsockopt(sck.SOL_IP,sck.IP_MULTICAST_IF,sck.inet_aton(ip))
         self.setsockopt(sck.SOL_IP,sck.IP_ADD_MEMBERSHIP,sck.inet_aton(mcast_ip)+sck.inet_aton(ip))
         self.settimeout(timeout)
-	self.players_uids=[]
+	self.players_uids={}
 	self.uid_id_obj=Identification(ip) #calling the identification object
 	self.uid=str(self.uid_id_obj.uid) # coverting the uuid of the player into string format
         logging.info("socket initialised and UUID of player generated:{0}".format(self.uid))
@@ -39,9 +39,9 @@ class multicast(sck.socket):
         self.sendto(mesg,(mcast_ip,port))
         logging.info("BROADCASTING \n")
 
-    def add_peers(self,mesg):
+    def add_peers(self,mesg,conn):
     	
-	self.players_uids.append(mesg.split()[0])
+	self.players_uids[(mesg.split()[0])]=conn
 	logging.info("{0} . successfully added to the list".format(mesg.split()[0]))
     
     def listen(self):
@@ -60,7 +60,7 @@ class multicast(sck.socket):
 		raise d
 		
 	else : 
-		self.add_peers(data) 
+		self.add_peers(data,conn) 
     
 
     def discover_bcast_mesg(self):
