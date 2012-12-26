@@ -1,5 +1,4 @@
 
-from multicasting import *
 import msgpack
 
 def encoder(data):
@@ -10,19 +9,19 @@ def decoder(data):
 	decoded_data=msgpack.unpackb(data,use_list=True)
 	return decoded_data
 
-def send(data):
+def encode_data(data):
 	mes=encoder(data)
-	multicast(timeout).send_mes(mes)
-	logging.info("Message successfully sent from EDsend")
-
-def receive_data():
-	try:
-		recv_data=multicast(timeout).listen2()
-		logging.info("encoded data received \n")
-	except ConnectingError as c:
-		if c.val==3:
-			print c.mesg
 	
+	logging.info("Message successfully Encoded")
+	return msg
+def decode_data():
+	#try:
+	#	recv_data=multicast(timeout).listen2()
+	#	logging.info("encoded data received \n")
+	#except ConnectingError as c:
+	#	if c.val==3:
+	#		print c.mesg
+	logging.info("returning Decoded data\n")
 	return decoder(recv_data)
 
 
