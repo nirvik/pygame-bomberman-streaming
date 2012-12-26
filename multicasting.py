@@ -77,11 +77,11 @@ class multicast(sck.socket):
     	j=ConnectingError(5,"not a valid player uuid! cannot connect")
 	try:
 		data,conn=self.recvfrom(buff_size)
-		if data.split()[0] in auth_uids:
+		if data.split()[0] in self.auth_uids:
 			logging.info("Successfull connection \n")
 			mesg=data.split()[1] #extracting the id
 			self.players_ids[data.split()[0]]=mesg
-			auth_uids.remove(data.split()[0])
+			self.auth_uids.remove(data.split()[0])
 		else:
 			raise j
 	except sck.timeout:
@@ -125,14 +125,15 @@ class multicast(sck.socket):
 			break
 		else:
 			try:
-				self.listen_player_id(self.auth_uids)
+				self.listen_player_id() #removing self.auth_uid as param
 			except ConnectingError as c:
 				if c.val==1:
 					logging.warning("Socket timed out..failed attempt {0}".format(i+1))
-					i++
+					i+=1
 				elif c.val==5:
 					logging.warning("That ip doesnot belong to the ips list")
-					i++
+					i+=1
 				
-
+				else :
+					raise c
 			 
