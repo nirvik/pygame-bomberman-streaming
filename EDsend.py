@@ -1,6 +1,8 @@
 
 import msgpack
+import logging
 
+logging.root.setLevel(logging.INFO)
 def encoder(data):
 	encoded_data=msgpack.packb(data)
 	return encoded_data
