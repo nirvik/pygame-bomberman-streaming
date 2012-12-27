@@ -136,4 +136,7 @@ class multicast(sck.socket):
 				
 				else :
 					raise c
-			 
+			
+    def __del__(self):
+	self.close()
+	logging.info("Closing sockets")
