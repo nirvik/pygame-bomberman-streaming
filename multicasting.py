@@ -3,6 +3,7 @@ import logging
 import uuid
 from identity import *
 from constants import *
+import netifaces # A NEW CHANGE -- to get the ip
 
 
 logging.root.setLevel(logging.INFO)
@@ -39,7 +40,7 @@ class multicast(sck.socket):
         self.sendto(mesg,(mcast_ip,port))
         logging.info("BROADCASTING .{0}".format(mesg))
 
-    def add_peers(self,mesg,conn):
+    def add_players(self,mesg,conn):
     	
 	self.players_uids[(mesg.split()[0])]=conn[0] #adding only the ip
 	logging.info("{0} . successfully added to the list".format(mesg.split()[0]))
@@ -60,7 +61,7 @@ class multicast(sck.socket):
 		raise d
 		
 	else : 
-		self.add_peers(data,conn) 
+		self.add_players(data,conn) 
 
 
     def listen_decoded_data(self): # listening to all the decoded pygame events...
@@ -77,7 +78,7 @@ class multicast(sck.socket):
     	j=ConnectingError(5,"not a valid player uuid! cannot connect")
 	try:
 		data,conn=self.recvfrom(buff_size)
-		if data.split()[0] in self.auth_uids:
+		if data.split()[0] in self.auth_uids: #if the uuid is present in the list
 			logging.info("Successfull connection \n")
 			mesg=data.split()[1] #extracting the id
 			self.players_ids[data.split()[0]]=mesg
