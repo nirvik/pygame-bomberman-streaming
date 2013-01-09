@@ -23,7 +23,7 @@ class multicast(sck.socket):
         super(multicast,self).__init__(sck.AF_INET,sck.SOCK_DGRAM,sck.IPPROTO_UDP)
         self.setsockopt(sck.IPPROTO_IP,sck.IP_MULTICAST_TTL,2)
         self.setsockopt(sck.SOL_SOCKET,sck.SO_REUSEADDR,1)
-        self.setsockopt(sck.SOL_IP, sck.IP_MULTICAST_LOOP, 1)
+        self.setsockopt(sck.SOL_IP, sck.IP_MULTICAST_LOOP, 0)
         self.bind(('',port))
         ip=raw_input("whats ur ip:")
         self.setsockopt(sck.SOL_IP,sck.IP_MULTICAST_IF,sck.inet_aton(ip))
@@ -97,13 +97,13 @@ class multicast(sck.socket):
 		self.send_mes("{0} . Broadcasting message".format(self.uid))
 		if(n>tries):
 			raise a
-			#self.close()
+			self.close()
 			break
 			
 		else:
 			try:
 				self.listen()
-				self.close()
+			#	self.close() -- small change
 			#	break  -------------------Just a test-----------------------
 			except ConnectingError as c:
 				if c.val==1:
