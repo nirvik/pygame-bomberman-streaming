@@ -24,6 +24,7 @@ class multicast(sck.socket):
         self.setsockopt(sck.IPPROTO_IP,sck.IP_MULTICAST_TTL,2)
         self.setsockopt(sck.SOL_SOCKET,sck.SO_REUSEADDR,1)
         self.setsockopt(sck.SOL_IP, sck.IP_MULTICAST_LOOP, 0)
+
         self.bind(('',port))
         ip=raw_input("whats ur ip:")
         self.setsockopt(sck.SOL_IP,sck.IP_MULTICAST_IF,sck.inet_aton(ip))
