@@ -8,6 +8,9 @@ import time
 grid=[[None,None,None],[None,None,None],[None,None,None]]
 XO='X'
 winner=None
+coordinate1=600
+coordinate2=20
+begin=0
 class tic_tac_toe(threading.Thread):
 	def __init__(self):#,condition):
 		super(tic_tac_toe,self).__init__()
@@ -29,16 +32,17 @@ class tic_tac_toe(threading.Thread):
 	        return board
 	def showboard(self,tt,board):
 
-	        global XO,winner
+	        global XO,winner,coordinate1,coordinate2
 	        if (winner is None):
 	                message=XO +"'s turn"
 	        else:
 	                message=winner + " WON!"
 	        print message
 	        font=pygame.font.Font(None,24)
-	        text=font.render(message,1,(0,0,0))
-	        textpos=text.get_rect()
-	        self.board.fill((250,250,250),(0,300,300,25))
+	        text=font.render(message,1,(0,0,250))
+		textpos=text.get_rect(center=(coordinate1,coordinate2))
+		coordinate2+=50
+       		self.board.fill((250,250,250),(0,300,300,25))
 	        textpos.centerx=self.board.get_rect().centerx
 	        self.board.blit(text,textpos)
 	        tt.blit(board,(0,0))
@@ -80,6 +84,7 @@ class tic_tac_toe(threading.Thread):
         	if XO=='X':
         	        XO='O'
         	else: XO='X'
+		return col,row
 
 
 	def gamewon(board):
@@ -106,5 +111,36 @@ class tic_tac_toe(threading.Thread):
         	        winner = grid[0][2]
         	        pygame.draw.line (board, (250,0,0), (250, 50), (50, 250), 2)
         	        return True
-
+	def run(self):
+		global begin,XO
+		XO=self.loading.players_ids[self.uid]
+		while 1:	#for receiving purpose
+			if (XO=='X' and begin!=0) or XO=='O':
+				try:
+					data=self.loading.listen_decoded()
+					logging.info("Encoded data received")
+					data=decoder(data)
+					if data[0]==1: # 1 stands for the 
+						self.draw_piece(self.board,data[1],data[2],XO)
+				except ConnectingError as l:
+					if l.val==3:
+						print '{0} has won the game as oponent couldnt think of a move'.format(XO)
+						break
+			elif XO=='X' and begin==0:
+				pass
+			self.showboard(self.board)
+			running=1
+			while running==1:
+				for event in pygame.event.get:
+					if event.type is QUIT:
+						running=0
+					elif event.type is MOUSEBUTTONDOWN:
+						col,row=self.clickboard(self.board)
+						data=[1,col,row,XO]
+						data=self.loading.encoder(data)
+						self.loading.transfer_data(data)
+						logging.info("Encoded Info transfered")
+				
+				self.showboard(self.board)
+				
 
