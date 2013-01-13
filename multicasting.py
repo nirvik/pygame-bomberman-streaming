@@ -73,7 +73,9 @@ class multicast(sck.socket):
 	except sck.timeout:
 		raise l
 	return data
-   
+
+    def transfer_data(self,data):
+    	self.send_mes(data)
     def listen_player_id(self): # listening to the player id broadcasted by each player
     				#accordingly the position of the players will be decided
     	j=ConnectingError(5,"not a valid player uuid! cannot connect")
