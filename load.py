@@ -3,7 +3,7 @@ from EDsend import *
 import pygame
 from pygame.locals import *
 from multicasting import *
-
+import time
 
 
 class start(multicast):
