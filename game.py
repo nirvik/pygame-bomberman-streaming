@@ -4,19 +4,28 @@ from pygame.locals import *
 import threading
 from load import *
 import time
+import socket as sck
+import sys
 
+port=8767
 grid=[[None,None,None],[None,None,None],[None,None,None]]
 XO='X'
 winner=None
 coordinate1=600
 coordinate2=20
 begin=0
-class tic_tac_toe(threading.Thread):
+address=('localhost',port)
+class tic_tac_toe(sck.socket):
 	def __init__(self):#,condition):
-		super(tic_tac_toe,self).__init__()
+		super(tic_tac_toe,self).__init__(sck.AF_INET,sck.SOCK_DGRAM)
+		logging.info("\nSOCKET DATAGRAM ESTABLISHED\n")
+		self.bind(address)
+		self.settimeout(5)
 		self.loading=start()
 		#self.condition=condition
 		pygame.init()
+		self.send_ip=str(self.loading.players_uids.values()[0])
+		print ' HEY WAIT ! THE SENDING IP IS :{0}'.format(self.send_ip)
 		self.loading.load=pygame.display.set_mode((700,700))
 		pygame.display.set_caption("tic-tac")
 		self.board=self.init_board()
@@ -81,9 +90,6 @@ class tic_tac_toe(threading.Thread):
         	if (grid[self.row][self.col]=='X' or grid[self.row][self.col]=='O'):
         	        print 'fuck this error ! create an exception'
         	self.draw_piece(self.board,self.row,self.col,XO)
-        	if XO=='X':
-        	        XO='O'
-        	else: XO='X'
 		return self.col,self.row
 
 
@@ -112,7 +118,7 @@ class tic_tac_toe(threading.Thread):
         	        pygame.draw.line (board, (250,0,0), (250, 50), (50, 250), 2)
         	        return True
 	def run(self):
-		global begin,XO
+		global begin,XO,port
 		XO=self.loading.players_ids[self.loading.uid]
 		running=1
 		eve=1
@@ -121,15 +127,18 @@ class tic_tac_toe(threading.Thread):
 			if (XO=='X' and begin!=0) or XO=='O':
 				try:
 					logging.info("waiting for response!")
-					data=self.loading.listen_decoded_data()
+					#data=self.loading.listen_decoded_data()
+					data,conn=self.recvfrom(2048)
+					print data
 					logging.info("Encoded data received")
-					data=decoder(data)
+					data=decoder(''.join(data.split(':')[1:])) #vasuman added shit
+					data=data.split('')
 					if data[0]==1: # 1 stands for the function drawpiece
 						self.draw_piece(self.board,data[1],data[2],data[3])
-				except ConnectingError as l:
-					if l.val==3:
-						print '{0} has won the game as oponent couldnt think of a move'.format(XO)
-						break
+				except sck.timeout as se:
+					print '{0} has won the game as oponent couldnt think of a move'.format(XO)
+					sys.exit()
+					break
 			elif XO=='X' and begin==0:
 				pass
 			self.showboard(self.loading.load,self.board) #showing the opponents move
@@ -143,7 +152,11 @@ class tic_tac_toe(threading.Thread):
 						col,row=self.clickboard(self.board)
 						data=[1,col,row,XO]
 						data=encoder(data)
-						self.loading.transfer_data(data)
+						data='1:'+data
+						print data
+						#self.loading.transfer_data('1:'+data)
+						self.sendto(data,(self.send_ip,port))
+
 						logging.info("Encoded Info transfered")
 						self.showboard(self.loading.load,self.board)
 						iterator=0
@@ -153,5 +166,8 @@ class tic_tac_toe(threading.Thread):
 				
 			self.showboard(self.loading.load,self.board)
 			begin+=1
-				
+			
+	def __del__(self):
+		self.close()
+		logging.info("CLOSING ALL SOCKETS ! Thanks for playing")
 
