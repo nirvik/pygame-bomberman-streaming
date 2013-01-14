@@ -16,14 +16,22 @@ coordinate1=600
 coordinate2=20
 begin=0
 address=('localhost',port)
+
+class TTTError(Exception):
+	def __init__(self,value,mesg):
+		self.val=value
+		self.mesg=mesg
+	
+	def __str__(self):
+		return repr(self.mesg)
+
 class tic_tac_toe(sck.socket):
 	def __init__(self):#,condition):
 		super(tic_tac_toe,self).__init__(sck.AF_INET,sck.SOCK_DGRAM)
 		logging.info("\nSOCKET DATAGRAM ESTABLISHED\n")
 		self.bind(address)
-		self.settimeout(5)
+		self.settimeout(10) #setting the timeout
 		self.loading=start()
-		#self.condition=condition
 		pygame.init()
 		self.send_ip=str(self.loading.players_uids.values()[0])
 		print ' HEY WAIT ! THE SENDING IP IS :{0}'.format(self.send_ip)
@@ -86,10 +94,16 @@ class tic_tac_toe(sck.socket):
 
 	def clickboard(self,board):
 	        global grid,XO,OX
+		d=TTTError(1,"SPACE OCCUPIED ALREADY")
        		(mouseX,mouseY)=pygame.mouse.get_pos()
         	(self.col,self.row)=self.boardpos(mouseY,mouseX)
-        	if (grid[self.row][self.col]=='X' or grid[self.row][self.col]=='O'):
-        	        print 'fuck this error ! create an exception'
+		try:
+        		if (grid[self.row][self.col]=='X' or grid[self.row][self.col]=='O'):
+        	        	raise d
+		except TTTError as t:
+			if t.val==1:
+				print t.mesg
+				self.clickboard(self.board)
         	self.draw_piece(self.board,self.row,self.col,XO)
 		if OX=='X':
 			OX='O'
@@ -132,12 +146,10 @@ class tic_tac_toe(sck.socket):
 			if (XO=='X' and begin!=0) or XO=='O':
 				try:
 					logging.info("waiting for response!")
-					#data=self.loading.listen_decoded_data()
 					data,conn=self.recvfrom(2048)
 					print data
 					logging.info("Encoded data received")
-					data=decoder(''.join(data.split(':')[1:])) #vasuman added shit
-					data=data.split('')
+					data=decoder(''.join(data.split(':')[1:]))
 					if data[0]==1: # 1 stands for the function drawpiece
 						self.draw_piece(self.board,data[1],data[2],data[3])
 				except sck.timeout as se:
