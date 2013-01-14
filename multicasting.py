@@ -32,7 +32,7 @@ class multicast(sck.socket):
         self.setsockopt(sck.SOL_IP,sck.IP_MULTICAST_IF,sck.inet_aton(self.ip))
         self.setsockopt(sck.SOL_IP,sck.IP_ADD_MEMBERSHIP,sck.inet_aton(mcast_ip)+sck.inet_aton(self.ip))
         self.settimeout(timeout)
-	self.players_uids={'dlkasjdlkajladsladlj23':'106.213.51.44'}# uuids and ip -- added a random ip
+	self.players_uids={'dlkasjdlkajladsladlj23':'127.0.0.1'}# uuids and ip -- added a random ip
 	self.players_ids={} # uuids and player id -- ADDITIONAL CHANGES
 	self.uid_id_obj=Identification(self.ip) #calling the identification object
 	self.uid=str(self.uid_id_obj.uid) # coverting the uuid of the player into string format
