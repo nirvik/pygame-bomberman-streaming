@@ -6,7 +6,7 @@ The users join the game and later  broadcast their uuid and player number so tha
 
 The users have to Subscribe to channel in the Multicast
 Players Multicast their uuid along with the channel they want to subscribe
-so suck my dic
+
 
 
 Advantages:
