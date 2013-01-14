@@ -49,45 +49,45 @@ class tic_tac_toe(threading.Thread):
 	        pygame.display.flip()
 	       	time.sleep(1)
 
-	def boardpos(mouseX,mouseY):
+	def boardpos(self,mouseX,mouseY):
 	        if (mouseY<100):
-	                row=0
+	                self.row=0
 	        elif mouseY<200:
-	                row=1
-	        else: row=2
+	                self.row=1
+	        else: self.row=2
 	
 	        if mouseX < 100:
-	                col=0
+	                self.col=0
 	        elif mouseX < 200:
-       		        col=1
-       	 	else: col=2
+       		        self.col=1
+       	 	else: self.col=2
 
-        	return (col,row)
-	def draw_piece(board,row,col,piece):
+        	return (self.col,self.row)
+	def draw_piece(self,board,row,col,piece):
 	        centerX=(row*100)+50
 	        centerY=(col*100)+50
 	        if piece=='X':
-	                pygame.draw.line(board,(0,0,0),(centerX-22,centerY-22),(centerX+22,centerY+22),2)
-	                pygame.draw.line(board,(0,0,0),(centerX-22,centerY+22),(centerX+22,centerY-22),2)
+	                pygame.draw.line(self.board,(0,0,0),(centerX-22,centerY-22),(centerX+22,centerY+22),2)
+	                pygame.draw.line(self.board,(0,0,0),(centerX-22,centerY+22),(centerX+22,centerY-22),2)
 	        else:
-	                pygame.draw.circle(board,(0,0,0),(centerX,centerY),44,2)
+	                pygame.draw.circle(self.board,(0,0,0),(centerX,centerY),44,2)
 	
 	        grid[col][row]=piece
 
-	def clickboard(board):
+	def clickboard(self,board):
 	        global grid,XO
        		(mouseX,mouseY)=pygame.mouse.get_pos()
-        	(col,row)=boardpos(mouseY,mouseX)
-        	if (grid[row][col]=='X' or grid[row][col]=='O'):
+        	(self.col,self.row)=self.boardpos(mouseY,mouseX)
+        	if (grid[self.row][self.col]=='X' or grid[self.row][self.col]=='O'):
         	        print 'fuck this error ! create an exception'
-        	draw_piece(board,row,col,XO)
+        	self.draw_piece(self.board,self.row,self.col,XO)
         	if XO=='X':
         	        XO='O'
         	else: XO='X'
-		return col,row
+		return self.col,self.row
 
 
-	def gamewon(board):
+	def gamewon(self,board):
 	        global grid,winner
 	        val=0
 	        for row in range(0,3):
@@ -113,34 +113,45 @@ class tic_tac_toe(threading.Thread):
         	        return True
 	def run(self):
 		global begin,XO
-		XO=self.loading.players_ids[self.uid]
-		while 1:	#for receiving purpose
+		XO=self.loading.players_ids[self.loading.uid]
+		running=1
+		eve=1
+		iterator=1
+		while running==1:	#for receiving purpose
 			if (XO=='X' and begin!=0) or XO=='O':
 				try:
-					data=self.loading.listen_decoded()
+					logging.info("waiting for response!")
+					data=self.loading.listen_decoded_data()
 					logging.info("Encoded data received")
 					data=decoder(data)
-					if data[0]==1: # 1 stands for the 
-						self.draw_piece(self.board,data[1],data[2],XO)
+					if data[0]==1: # 1 stands for the function drawpiece
+						self.draw_piece(self.board,data[1],data[2],data[3])
 				except ConnectingError as l:
 					if l.val==3:
 						print '{0} has won the game as oponent couldnt think of a move'.format(XO)
 						break
 			elif XO=='X' and begin==0:
 				pass
-			self.showboard(self.board)
-			running=1
-			while running==1:
-				for event in pygame.event.get:
+			self.showboard(self.loading.load,self.board) #showing the opponents move
+			#running=1
+			iterator=1	
+			while eve==1:
+				for event in pygame.event.get():
 					if event.type is QUIT:
-						running=0
+						eve=0
 					elif event.type is MOUSEBUTTONDOWN:
 						col,row=self.clickboard(self.board)
 						data=[1,col,row,XO]
-						data=self.loading.encoder(data)
+						data=encoder(data)
 						self.loading.transfer_data(data)
 						logging.info("Encoded Info transfered")
+						self.showboard(self.loading.load,self.board)
+						iterator=0
+						break
+				if iterator==0:
+					break
 				
-				self.showboard(self.board)
+			self.showboard(self.loading.load,self.board)
+			begin+=1
 				
 
