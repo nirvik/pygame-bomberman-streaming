@@ -5,10 +5,11 @@ from pygame.locals import *
 from multicasting import *
 import time
 
-
+channel="DREAM_CAST"
 class start(multicast):
 
 	def __init__(self):
+		
 		super(start,self).__init__(timeout)	
 		self.stream_message=[]
 		try:
@@ -17,7 +18,7 @@ class start(multicast):
 			logging.info("\n ConnectingError has occured ")
 		print "Displaying the Player's uuid and ip "
 		for keys in self.players_uids:
-			print keys,':',self.players_uid[keys]
+			print keys,':',self.players_uids[keys]
 		print '****************************************'
 		logging.info("Initialising Screen :D")
 		pygame.init()
@@ -30,6 +31,7 @@ class start(multicast):
 
 
 	def join_game(self):
+		global channel
 		which_player=raw_input('Choose Player name: ')#since all the comps are goint to be together,players can discuss amongst themselves and discuss which player no they want 
 		id=which_player[-1]
 		string=self.uid+' '+id
@@ -49,19 +51,20 @@ class start(multicast):
 		self.coordinate2=20
 		#INITIALISING FONTS ---PYGAME 
 		font=pygame.font.Font(None,24)
+		if self.channel=="DREAM_CAST":
+			
+			print 'displaying the uids and player ids\n'
+			for keys in self.players_ids:
+				print keys,':',self.players_ids[keys]
+				text=font.render("{0}:{1} @ channel:DREAM_CAST".format(keys,self.players_ids[keys]),1,(0,0,255))
+				textpos=text.get_rect(center=(self.coordinate1,self.coordinate2))
+				self.coordinate2+=50
+				textpos.centerx=self.load.get_rect().centerx
+				self.load.blit(text,textpos)
 		
-		print 'displaying the uids and player ids\n'
-		for keys in self.players_ids:
-			print keys,':',self.players_ids[keys]
-			text=font.render("{0} is player {1}".format(keys,self.players_ids[keys]),1,(0,0,255))
-			textpos=text.get_rect(center=(self.coordinate1,self.coordinate2))
-			self.coordinate2+=50
-			textpos.centerx=self.load.get_rect().centerx
-			self.load.blit(text,textpos)
-		
-		self.scr.blit(self.load,(0,0))
-		pygame.display.flip()
-		time.sleep(2)
+			self.scr.blit(self.load,(0,0))
+			pygame.display.flip()
+			time.sleep(2)
 	
 	def __del__(self):
 		self.close()
