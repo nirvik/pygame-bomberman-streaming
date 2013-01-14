@@ -7,7 +7,8 @@ import netifaces # A NEW CHANGE -- to get the ip
 
 
 logging.root.setLevel(logging.INFO)
-#random
+
+
 
 class ConnectingError(Exception):
 	def __init__(self,value,mesg):
@@ -21,18 +22,19 @@ class multicast(sck.socket):
     def __init__(self,timeout):
         
         super(multicast,self).__init__(sck.AF_INET,sck.SOCK_DGRAM,sck.IPPROTO_UDP)
+	self.channel=raw_input("enter the channel:")
         self.setsockopt(sck.IPPROTO_IP,sck.IP_MULTICAST_TTL,2)
         self.setsockopt(sck.SOL_SOCKET,sck.SO_REUSEADDR,1)
         self.setsockopt(sck.SOL_IP, sck.IP_MULTICAST_LOOP, 0)
 
         self.bind(('',port))
-        ip=raw_input("whats ur ip:")
-        self.setsockopt(sck.SOL_IP,sck.IP_MULTICAST_IF,sck.inet_aton(ip))
-        self.setsockopt(sck.SOL_IP,sck.IP_ADD_MEMBERSHIP,sck.inet_aton(mcast_ip)+sck.inet_aton(ip))
+       	self.ip=raw_input("whats ur ip:")
+        self.setsockopt(sck.SOL_IP,sck.IP_MULTICAST_IF,sck.inet_aton(self.ip))
+        self.setsockopt(sck.SOL_IP,sck.IP_ADD_MEMBERSHIP,sck.inet_aton(mcast_ip)+sck.inet_aton(self.ip))
         self.settimeout(timeout)
-	self.players_uids={}# uuids and ip
+	self.players_uids={'dlkasjdlkajladsladlj23':'106.213.51.44'}# uuids and ip -- added a random ip
 	self.players_ids={} # uuids and player id -- ADDITIONAL CHANGES
-	self.uid_id_obj=Identification(ip) #calling the identification object
+	self.uid_id_obj=Identification(self.ip) #calling the identification object
 	self.uid=str(self.uid_id_obj.uid) # coverting the uuid of the player into string format
 	self.auth_uids=[] #for authenticating players to join the game
         logging.info("socket initialised and UUID of player generated:{0}".format(self.uid))
@@ -63,7 +65,8 @@ class multicast(sck.socket):
 		
 	else : 
 		self.add_players(data,conn) 
-
+		self.channel=data.split()[-1] # Determine which channel its subscribbed to
+		logging.info("Channel Subsribed:{0}".format(self.channel))
 
     def listen_decoded_data(self): # listening to all the decoded pygame events...
     	l=ConnectingError(3,"Didnot recieve encoded data")
@@ -97,7 +100,7 @@ class multicast(sck.socket):
 	n=0 #no of attempts
         tries=3
         while 1:
-		self.send_mes("{0} . Broadcasting message".format(self.uid))
+		self.send_mes("{0} . Broadcasting message to channel {1}".format(self.uid,self.channel))
 		if(n>tries):
 			raise a
 			self.close()
