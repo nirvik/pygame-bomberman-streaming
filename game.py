@@ -10,6 +10,7 @@ import sys
 port=8767
 grid=[[None,None,None],[None,None,None],[None,None,None]]
 XO='X'
+OX='X'
 winner=None
 coordinate1=600
 coordinate2=20
@@ -41,9 +42,9 @@ class tic_tac_toe(sck.socket):
 	        return board
 	def showboard(self,tt,board):
 
-	        global XO,winner,coordinate1,coordinate2
+	        global XO,winner,coordinate1,coordinate2,OX
 	        if (winner is None):
-	                message=XO +"'s turn"
+	                message=OX +"'s turn"
 	        else:
 	                message=winner + " WON!"
 	        print message
@@ -84,12 +85,15 @@ class tic_tac_toe(sck.socket):
 	        grid[col][row]=piece
 
 	def clickboard(self,board):
-	        global grid,XO
+	        global grid,XO,OX
        		(mouseX,mouseY)=pygame.mouse.get_pos()
         	(self.col,self.row)=self.boardpos(mouseY,mouseX)
         	if (grid[self.row][self.col]=='X' or grid[self.row][self.col]=='O'):
         	        print 'fuck this error ! create an exception'
         	self.draw_piece(self.board,self.row,self.col,XO)
+		if OX=='X':
+			OX='O'
+		else : OX='X'
 		return self.col,self.row
 
 
@@ -118,8 +122,9 @@ class tic_tac_toe(sck.socket):
         	        pygame.draw.line (board, (250,0,0), (250, 50), (50, 250), 2)
         	        return True
 	def run(self):
-		global begin,XO,port
+		global begin,XO,port,OX
 		XO=self.loading.players_ids[self.loading.uid]
+		OX=XO
 		running=1
 		eve=1
 		iterator=1
